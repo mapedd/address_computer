@@ -12,8 +12,7 @@ enum read_out_dir {
 
 int main(int argc, char *argv[]) {
 
-    
-    
+
     if(argc < 6){
         fprintf(stderr, "Not enough arguments! Usage: h v h_s v_s read_out_type [-dl,-dr,-ul,-ur] print all addresses to stdout/file[-p/-f] number_of_frames\n");
         return 0;
@@ -50,7 +49,7 @@ int main(int argc, char *argv[]) {
             canPrintToFile= true;
             stream = fopen("log.txt", "w");
         }
-            else if(strcmp(argv[6],"-t") == 0){
+            else if(strcmp(argv[6],"-p") == 0){
             canPrintToStdOut = true;
             stream = stdout;
         }
@@ -61,6 +60,10 @@ int main(int argc, char *argv[]) {
     int v = atoi(argv[2]);
     int h_s = atoi(argv[3]);
     int v_s = atoi(argv[4]);
+
+    int total_pixels = h * v;
+
+    int address_offset = 0;
     
     // frame counter if user want more than one frame to be printed
     int f_counter = 1;
@@ -104,156 +107,167 @@ int main(int argc, char *argv[]) {
 
         for (i=0;i<v_s;i++) {
 
-        int n;
-        
-        for (j=0;j<h_s;j++) {       
+            int n;
             
-            
-            int m;
-            
-            switch (read_out_type) {
-                case read_down_right:
+            for (j=0;j<h_s;j++) {
                 
-                    n = v_y * i;
-                    m = h_x * j;
-                    
-                break;
-                case read_down_left:
-                                
-                    n = v_y * i;
-                    m = h_x * j + (h_x - 1);
-                    
-                break;
-                case read_up_right:
                 
-                    n = v_y * i + (v_y - 1);
-                    m = h_x * j;
-                    
-                break;
-                case read_up_left:
+                int m;
                 
-                    n = v_y * i + (v_y - 1);
-                    m = h_x * j + (h_x - 1);
-                    
-                break;
-                default:
-                    m = 0;
-                    n = 0;
-                break;
-            }
-
-            
-            int index = n * h + m;      
-            
-            
-            
-            printf("\ni = %d, A = (%d,%d) index = %d\n",counter,n,m, index);
-            counter++;
-            
-            if(canPrintToFile){
-               fprintf(stream, "\ni = %d, A = (%d,%d) index = %d\n",counter,n,m, index);   
-            }
-            
-            if(canPrintToStdOut || canPrintToFile){
-                int k = 0;
-                            
                 switch (read_out_type) {
-                    case read_down_right:{
-                        int width_counter = 0;
-                        
-                        while(k<s_l){
-                            
-                            if (width_counter<h_x) {
-                                int x = index+width_counter;
-                                fprintf(stream, " %d \t",x);
-                                if(x<10) fprintf(stream, "\t");
-                                width_counter ++;
-                                k++;
-                            }
-                            else{
-                                fprintf(stream, "\n");
-                                width_counter = 0;
-                                n++;
-                                index = n * h + m;
-                            }
-                        }
-                    }
-                    break;
-                    case read_down_left:{
-                        int width_counter = 0;
-                        
-                        while(k<s_l){
-                            
-                            if (width_counter<h_x) {
-                                int x = index-width_counter;
-                                fprintf(stream, " %d \t",x);
-                                if(x<10) fprintf(stream, "\t");
-                                width_counter ++;
-                                k++;
-                            }
-                            else{
-                                fprintf(stream, "\n");
-                                width_counter = 0;
-                                n++;
-                                index = n * h + m;
-                            }
-                        }
-                    }               
-                    break;
-                    case read_up_right:{
-                        int width_counter = 0;
-                        
-                        while(k<s_l){
-                            
-                            if (width_counter<h_x) {
-                                int x = index+width_counter;
-                                fprintf(stream, " %d \t",x);
-                                if(x<10) fprintf(stream, "\t");
-                                width_counter ++;
-                                k++;
-                            }
-                            else{
-                                fprintf(stream, "\n");
-                                width_counter = 0;
-                                n--;
-                                index = n * h + m;
-                            }
-                        }
-                    }
+                    case read_down_right:
+                    
+                        n = v_y * i;
+                        m = h_x * j;
                         
                     break;
-                    case read_up_left:{
-                        int width_counter = 0;
+                    case read_down_left:
+                                    
+                        n = v_y * i;
+                        m = h_x * j + (h_x - 1);
                         
-                        while(k<s_l){
-                            
-                            if (width_counter<h_x) {
-                                int x = index-width_counter;
-                                fprintf(stream, " %d \t",x);
-                                if(x<10) fprintf(stream, " ");
-                                width_counter ++;
-                                k++;
-                            }
-                            else{
-                                fprintf(stream, "\n");
-                                width_counter = 0;
-                                n--;
-                                index = n * h + m;
-                            }
-                        }
-                    }
+                    break;
+                    case read_up_right:
+                    
+                        n = v_y * i + (v_y - 1);
+                        m = h_x * j;
+                        
+                    break;
+                    case read_up_left:
+                    
+                        n = v_y * i + (v_y - 1);
+                        m = h_x * j + (h_x - 1);
+                        
                     break;
                     default:
-                    
+                        m = 0;
+                        n = 0;
                     break;
+                }
+
+                
+                int index = n * h + m;      
+                
+                
+                
+                printf("\ni = %d, A = (%d,%d) index = %d\n",counter,n,m, index);
+                counter++;
+                
+                if(canPrintToFile){
+                   fprintf(stream, "\ni = %d, A = (%d,%d) index = %d\n",counter,n,m, index);   
+                }
+                
+                if(canPrintToStdOut || canPrintToFile){
+                    int k = 0;
+                                
+                    switch (read_out_type) {
+                        case read_down_right:{
+                            int width_counter = 0;
+                            
+                            while(k<s_l){
+                                
+                                if (width_counter<h_x) {
+                                    int x = index+width_counter + address_offset;
+                                    fprintf(stream, " %d \t",x);
+                                    if(x<10) fprintf(stream, "\t");
+                                    width_counter ++;
+                                    k++;
+                                }
+                                else{
+                                    fprintf(stream, "\n");
+                                    width_counter = 0;
+                                    n++;
+                                    index = n * h + m;
+                                }
+                            }
+                        }
+                        break;
+                        case read_down_left:{
+                            int width_counter = 0;
+                            
+                            while(k<s_l){
+                                
+                                if (width_counter<h_x) {
+                                    int x = index-width_counter + address_offset;
+                                    fprintf(stream, " %d \t",x);
+                                    if(x<10) fprintf(stream, "\t");
+                                    width_counter ++;
+                                    k++;
+                                }
+                                else{
+                                    fprintf(stream, "\n");
+                                    width_counter = 0;
+                                    n++;
+                                    index = n * h + m;
+                                }
+                            }
+                        }               
+                        break;
+                        case read_up_right:{
+                            int width_counter = 0;
+                            
+                            while(k<s_l){
+                                
+                                if (width_counter<h_x) {
+                                    int x = index+width_counter + address_offset;
+                                    fprintf(stream, " %d \t",x);
+                                    if(x<10) fprintf(stream, "\t");
+                                    width_counter ++;
+                                    k++;
+                                }
+                                else{
+                                    fprintf(stream, "\n");
+                                    width_counter = 0;
+                                    n--;
+                                    index = n * h + m;
+                                }
+                            }
+                        }
+                            
+                        break;
+                        case read_up_left:{
+                            int width_counter = 0;
+                            
+                            while(k<s_l){
+                                
+                                if (width_counter<h_x) {
+                                    int x = index-width_counter + address_offset;
+                                    fprintf(stream, " %d \t",x);
+                                    if(x<10) fprintf(stream, " ");
+                                    width_counter ++;
+                                    k++;
+                                }
+                                else{
+                                    fprintf(stream, "\n");
+                                    width_counter = 0;
+                                    n--;
+                                    index = n * h + m;
+                                }
+                            }
+                        }
+                        break;
+                        default:
+                        
+                        break;
+                     }
                  }
-             }
+                
+                if(m >= v) break;
+            }
             
-            if(m >= v) break;
+            if (n >= h) break;
         }
-        
-        if (n >= h) break;
-    }
+
+        address_offset += total_pixels;
+
+
+        if(canPrintToFile || canPrintToStdOut){
+            if (f_counter > 1)
+            {
+                fprintf(stream, "\n----------------------------------------------\n");
+            }
+        }
+
     }
     
     fprintf(stream, "\n");
